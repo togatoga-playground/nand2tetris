@@ -4,17 +4,29 @@
 // File name: projects/03/a/PC.hdl
 
 /**
- * A 16-bit counter with load and reset control bits.
- * if      (reset[t] == 1) out[t+1] = 0
- * else if (load[t] == 1)  out[t+1] = in[t]
- * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
- * else                    out[t+1] = out[t]
- */
+* A 16-bit counter with load and reset control bits.
+* if      (reset[t] == 1) out[t+1] = 0
+* else if (load[t] == 1)  out[t+1] = in[t]
+* else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+* else                    out[t+1] = out[t]
+*/
 
 CHIP PC {
-    IN in[16],load,inc,reset;
-    OUT out[16];
+  IN in[16],load,inc,reset;
+  OUT out[16];
 
-    PARTS:
-    // Put your code here:
+  PARTS:
+  // Put your code here:
+  Register(in=regin, load=regload, out=regout, out=out);
+
+  Inc16(in=regout, out=incremented);
+
+  // make register-in
+  Mux16(a=tmp2, b=false, sel=reset, out=regin);
+  Mux16(a=tmp1, b=in, sel=load, out=tmp2);
+  Mux16(a=false, b=incremented, sel=inc, out=tmp1);
+
+  // make register-load
+  Or(a=reset, b=inc, out=resetorinc);
+  Or(a=load, b=resetorinc, out=regload);
 }
